@@ -2,7 +2,7 @@ import { useTasks } from "../hooks/useTasks";
 import TaskCard from "../components/TaskCard";
 
 const TaskList = () => {
-  const { tasks, loading, error } = useTasks();
+  const { tasks, loading, error, toggleComplete } = useTasks();
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -14,7 +14,11 @@ const TaskList = () => {
         <p>Belum ada tugas. Tambah sekarang!</p>
       ) : (
         tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            onToggleComplete={toggleComplete}
+          />
         ))
       )}
     </div>

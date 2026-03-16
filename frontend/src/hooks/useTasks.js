@@ -31,5 +31,14 @@ export const useTasks = () => {
     }
   };
 
-  return { tasks, loading, error, addTask, fetchTasks };
+  const toggleComplete = async (taskId, currentStatus) => {
+    try {
+      await taskService.updateTask(taskId, !currentStatus);
+      await fetchTasks();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return { tasks, loading, error, addTask, fetchTasks, toggleComplete };
 };

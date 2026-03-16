@@ -42,3 +42,11 @@ def create_task(task: TaskCreate):
         "sessions": sessions,
         "reminder_date": reminder_date
     }
+
+@router.patch("/{task_id}")
+def update_task(task_id: str, is_completed: bool):
+    response = supabase.table("tasks")\
+        .update({"is_completed": is_completed})\
+        .eq("id", task_id)\
+        .execute()
+    return response.data[0]

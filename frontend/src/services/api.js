@@ -7,6 +7,15 @@ export const taskService = {
     return response.json();
   },
 
+updateTask: async (taskId, isCompleted) => {
+    const response = await fetch(
+        `${API_URL}/tasks/${taskId}?is_completed=${isCompleted}`,
+        { method: "PATCH" }
+    );
+    if (!response.ok) throw new Error("Failed to update task");
+    return response.json();
+},
+
   createTask: async (taskData) => {
     const response = await fetch(`${API_URL}/tasks/`, {
       method: "POST",
