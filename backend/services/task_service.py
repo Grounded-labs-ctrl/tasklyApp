@@ -1,5 +1,5 @@
 from models.task import TaskCreate
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 def calculate_sessions(estimated_hours: float) -> list:
     sessions = []
@@ -18,5 +18,11 @@ def get_reminder_date(deadline: datetime, days_before: int) -> datetime:
 
 def should_remind_today(deadline: datetime, days_before: int) -> bool:
     reminder_date = get_reminder_date(deadline, days_before)
-    today = datetime.now().date()
+    today = datetime.now(timezone.utc).date()
     return reminder_date.date() == today
+
+def is_expired(deadline: datetime, is_completed: bool, days_after: int = 7) -> bool:
+    if not is_completed:
+        return False
+    cleanup_date = deadline + timedelta(days=days_after)
+    return datetime.now(timezone.utc) > cleanup_date

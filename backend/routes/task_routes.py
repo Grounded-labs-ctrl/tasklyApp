@@ -2,13 +2,24 @@ from fastapi import APIRouter
 from models.task import TaskCreate
 from services.task_service import calculate_sessions, get_reminder_date
 from database import supabase
-
+from datetime import datetime
+from services.task_service import calculate_sessions, get_reminder_date, is_expired
 router = APIRouter()
 
 @router.get("/")
 def get_tasks():
     response = supabase.table("tasks").select("*").execute()
-    return response.data
+    tasks = response.data
+    
+    # Auto cleanup expired tasks
+    for task in tasks:
+        deadline = datetime.fromisoformat(task["deadline"].replace("Z", "+00:00"))
+        if is_expired(deadline, task["is_completed"]):
+            supabase.table("tasks").delete().eq("id", task["id"]).execute()
+    
+    # Return fresh data after cleanup
+    fresh = supabase.table("tasks").select("*").execute()
+    return fresh.data
 
 @router.post("/")
 def create_task(task: TaskCreate):
