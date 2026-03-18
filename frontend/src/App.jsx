@@ -21,47 +21,18 @@ function App() {
   if (!user) return <Login onLogin={signInWithGoogle} />;
 
   return (
-    <div className="min-h-screen">
-      <nav style={{ background: 'var(--dark)' }} className="px-6 py-4 flex justify-between items-center shadow-lg">
-        <div className="flex items-center gap-6">
-          <h1 className="text-2xl font-black text-white">
-            📋 Taskly
-          </h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage("list")}
-              className="px-4 py-2 rounded-full font-bold text-sm transition-all"
-              style={{
-                background: page === "list" ? 'var(--yellow)' : 'transparent',
-                color: page === "list" ? 'var(--dark)' : 'white',
-                border: '2px solid',
-                borderColor: page === "list" ? 'var(--yellow)' : 'rgba(255,255,255,0.3)'
-              }}
-            >
-              📚 Tugas Gw
-            </button>
-            <button
-              onClick={() => setPage("add")}
-              className="px-4 py-2 rounded-full font-bold text-sm transition-all"
-              style={{
-                background: page === "add" ? 'var(--pink)' : 'transparent',
-                color: 'white',
-                border: '2px solid',
-                borderColor: page === "add" ? 'var(--pink)' : 'rgba(255,255,255,0.3)'
-              }}
-            >
-              ✏️ Tambah
-            </button>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-bold px-3 py-1 rounded-full text-white"
+    <div className="min-h-screen" style={{ paddingBottom: '80px' }}>
+      {/* Top navbar - simple */}
+      <nav style={{ background: 'var(--dark)' }} className="px-4 py-3 flex justify-between items-center shadow-lg">
+        <h1 className="text-xl font-black text-white">📋 Taskly</h1>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold px-2 py-1 rounded-full text-white"
             style={{ background: 'rgba(255,255,255,0.15)' }}>
             👤 {user.email.split('@')[0]}
           </span>
           <button
             onClick={signOut}
-            className="px-3 py-1 rounded-full text-xs font-bold transition-all hover:opacity-80"
+            className="px-3 py-1 rounded-full text-xs font-bold"
             style={{ background: 'var(--pink)', color: 'white' }}
           >
             Logout
@@ -69,13 +40,41 @@ function App() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      {/* Content */}
+      <div className="max-w-2xl mx-auto px-4 py-6">
         {page === "list" ? (
           <TaskList taskHook={taskHook} />
         ) : (
           <AddTask taskHook={taskHook} onTaskAdded={() => setPage("list")} />
         )}
       </div>
+
+      {/* Bottom navigation - mobile friendly */}
+      <nav className="fixed bottom-0 left-0 right-0 flex shadow-lg"
+        style={{ background: 'var(--dark)', zIndex: 100 }}>
+        <button
+          onClick={() => setPage("list")}
+          className="flex-1 py-4 flex flex-col items-center gap-1 font-black text-xs transition-all"
+          style={{
+            color: page === "list" ? 'var(--yellow)' : 'rgba(255,255,255,0.5)',
+            borderTop: page === "list" ? '3px solid var(--yellow)' : '3px solid transparent'
+          }}
+        >
+          <span className="text-xl">📚</span>
+          Tugas Gw
+        </button>
+        <button
+          onClick={() => setPage("add")}
+          className="flex-1 py-4 flex flex-col items-center gap-1 font-black text-xs transition-all"
+          style={{
+            color: page === "add" ? 'var(--pink)' : 'rgba(255,255,255,0.5)',
+            borderTop: page === "add" ? '3px solid var(--pink)' : '3px solid transparent'
+          }}
+        >
+          <span className="text-xl">✏️</span>
+          Tambah
+        </button>
+      </nav>
     </div>
   );
 }
