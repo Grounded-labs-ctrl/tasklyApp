@@ -18,3 +18,8 @@ def get_user_from_token(token: str):
         return user.user
     except Exception:
         return None
+
+def get_supabase_with_token(token: str) -> Client:
+    client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    client.postgrest.auth(token)
+    return client
