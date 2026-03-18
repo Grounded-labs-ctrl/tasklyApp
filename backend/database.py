@@ -11,3 +11,10 @@ if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("SUPABASE_URL dan SUPABASE_KEY harus diisi di .env")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def get_user_from_token(token: str):
+    try:
+        user = supabase.auth.get_user(token)
+        return user.user
+    except Exception:
+        return None

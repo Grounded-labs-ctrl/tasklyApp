@@ -1,28 +1,39 @@
-from fastapi import APIRouter
-from models.task import TaskCreate
-from services.task_service import calculate_sessions, get_reminder_date
-from database import supabase
+from fastapi import APIRouter, Header, HTTPException
+from typing import Optional
 from datetime import datetime
+from models.task import TaskCreate
 from services.task_service import calculate_sessions, get_reminder_date, is_expired
+from database import supabase, get_user_from_token
+
 router = APIRouter()
 
+def get_current_user(authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    token = authorization.replace("Bearer ", "")
+    user = get_user_from_token(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user
+
 @router.get("/")
-def get_tasks():
-    response = supabase.table("tasks").select("*").execute()
+def get_tasks(authorization: Optional[str] = Header(None)):
+    user = get_current_user(authorization)
+    
+    response = supabase.table("tasks").select("*").eq("user_id", user.id).execute()
     tasks = response.data
     
-    # Auto cleanup expired tasks
     for task in tasks:
         deadline = datetime.fromisoformat(task["deadline"].replace("Z", "+00:00"))
         if is_expired(deadline, task["is_completed"]):
             supabase.table("tasks").delete().eq("id", task["id"]).execute()
     
-    # Return fresh data after cleanup
-    fresh = supabase.table("tasks").select("*").execute()
+    fresh = supabase.table("tasks").select("*").eq("user_id", user.id).execute()
     return fresh.data
 
 @router.post("/")
-def create_task(task: TaskCreate):
+def create_task(task: TaskCreate, authorization: Optional[str] = Header(None)):
+    user = get_current_user(authorization)
     sessions = calculate_sessions(task.estimated_hours)
     reminder_date = get_reminder_date(task.deadline, task.reminder_days_before)
     
@@ -32,7 +43,8 @@ def create_task(task: TaskCreate):
         "estimated_hours": task.estimated_hours,
         "course_name": task.course_name,
         "reminder_days_before": task.reminder_days_before,
-        "is_completed": False
+        "is_completed": False,
+        "user_id": user.id
     }
     
     response = supabase.table("tasks").insert(task_data).execute()
@@ -44,9 +56,12 @@ def create_task(task: TaskCreate):
     }
 
 @router.patch("/{task_id}")
-def update_task(task_id: str, is_completed: bool):
+def update_task(task_id: str, is_completed: bool, authorization: Optional[str] = Header(None)):
+    user = get_current_user(authorization)
+    
     response = supabase.table("tasks")\
         .update({"is_completed": is_completed})\
         .eq("id", task_id)\
+        .eq("user_id", user.id)\
         .execute()
     return response.data[0]
