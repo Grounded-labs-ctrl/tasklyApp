@@ -1,7 +1,9 @@
 const TaskCard = ({ task, onToggleComplete }) => {
-  const deadline = new Date(task.deadline);
   const today = new Date();
-  const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+  today.setHours(0, 0, 0, 0);
+  const deadlineDate = new Date(task.deadline);
+  deadlineDate.setHours(0, 0, 0, 0);
+  const daysLeft = Math.round((deadlineDate - today) / (1000 * 60 * 60 * 24));
 
   const getUrgencyConfig = () => {
     if (task.is_completed) return { bg: '#e8e8e8', accent: '#999', label: 'Selesai! 🎉' };
@@ -22,7 +24,6 @@ const TaskCard = ({ task, onToggleComplete }) => {
         opacity: task.is_completed ? 0.7 : 1,
       }}
     >
-      {/* Header */}
       <div className="flex justify-between items-start mb-3">
         <h3
           className="text-lg font-black leading-tight flex-1 mr-2"
@@ -41,7 +42,6 @@ const TaskCard = ({ task, onToggleComplete }) => {
         </span>
       </div>
 
-      {/* Info */}
       <div className="flex flex-wrap gap-2 mb-4">
         <span className="text-xs font-bold px-3 py-1 rounded-full"
           style={{ background: 'var(--purple)', color: 'white' }}>
@@ -49,7 +49,7 @@ const TaskCard = ({ task, onToggleComplete }) => {
         </span>
         <span className="text-xs font-bold px-3 py-1 rounded-full"
           style={{ background: 'var(--blue)', color: 'white' }}>
-          ⏰ {deadline.toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}
+          ⏰ {deadlineDate.toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' })}
         </span>
         <span className="text-xs font-bold px-3 py-1 rounded-full"
           style={{ background: 'var(--orange)', color: 'white' }}>
@@ -57,7 +57,6 @@ const TaskCard = ({ task, onToggleComplete }) => {
         </span>
       </div>
 
-      {/* Button */}
       <button
         onClick={() => onToggleComplete(task.id, task.is_completed)}
         className="w-full py-2 rounded-2xl font-black text-sm transition-all hover:scale-105 active:scale-95"
