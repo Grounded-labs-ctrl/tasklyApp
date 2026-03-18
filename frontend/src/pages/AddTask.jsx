@@ -33,73 +33,86 @@ const AddTask = ({ onTaskAdded }) => {
         course_name: "",
         reminder_days_before: 2,
       });
-      if (onTaskAdded) onTaskAdded();
+      onTaskAdded();
     } finally {
       setLoading(false);
     }
   };
 
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 16px",
+    borderRadius: "16px",
+    border: "3px solid #e0e0e0",
+    fontSize: "15px",
+    fontFamily: "Nunito, sans-serif",
+    fontWeight: "700",
+    outline: "none",
+    background: "white",
+    color: "var(--dark)",
+    transition: "border-color 0.2s",
+  };
+
+  const fields = [
+    { name: "title", placeholder: "Nama tugas", emoji: "📝", type: "text" },
+    { name: "course_name", placeholder: "Mata kuliah", emoji: "📚", type: "text" },
+    { name: "deadline", placeholder: "Deadline", emoji: "⏰", type: "datetime-local" },
+    { name: "estimated_hours", placeholder: "Estimasi jam ngerjain", emoji: "🕐", type: "number" },
+    { name: "reminder_days_before", placeholder: "Ingatkan H- berapa?", emoji: "🔔", type: "number" },
+  ];
+
+  const colors = ['var(--yellow)', 'var(--pink)', 'var(--blue)', 'var(--orange)', 'var(--purple)'];
+
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h2>➕ Tambah Tugas</h2>
+    <div>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-3xl font-black" style={{ color: 'var(--dark)' }}>
+          Tambah Tugas ✏️
+        </h2>
+        <p className="font-semibold" style={{ color: '#888' }}>
+          Catat sekarang sebelum lupa!
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "12px" }}>
-          <input
-            name="title"
-            placeholder="Nama tugas"
-            value={form.title}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", padding: "8px" }}
-          />
+        <div className="flex flex-col gap-3">
+          {fields.map((field, i) => (
+            <div key={field.name} className="relative">
+              <div
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-lg"
+                style={{ zIndex: 1 }}
+              >
+                {field.emoji}
+              </div>
+              <input
+                name={field.name}
+                type={field.type}
+                placeholder={field.placeholder}
+                value={form[field.name]}
+                onChange={handleChange}
+                required={field.name !== "reminder_days_before"}
+                style={{
+                  ...inputStyle,
+                  paddingLeft: "44px",
+                }}
+                onFocus={e => e.target.style.borderColor = colors[i]}
+                onBlur={e => e.target.style.borderColor = '#e0e0e0'}
+              />
+            </div>
+          ))}
         </div>
-        <div style={{ marginBottom: "12px" }}>
-          <input
-            name="course_name"
-            placeholder="Mata kuliah"
-            value={form.course_name}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-        <div style={{ marginBottom: "12px" }}>
-          <input
-            name="deadline"
-            type="datetime-local"
-            value={form.deadline}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-        <div style={{ marginBottom: "12px" }}>
-          <input
-            name="estimated_hours"
-            type="number"
-            placeholder="Estimasi jam"
-            value={form.estimated_hours}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
-        <div style={{ marginBottom: "12px" }}>
-          <input
-            name="reminder_days_before"
-            type="number"
-            placeholder="Ingatkan H- berapa?"
-            value={form.reminder_days_before}
-            onChange={handleChange}
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </div>
+
         <button
           type="submit"
           disabled={loading}
-          style={{ padding: "10px 20px", cursor: "pointer" }}
+          className="w-full py-4 rounded-2xl font-black text-lg mt-6 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: loading ? '#ccc' : 'var(--dark)',
+            color: loading ? '#999' : 'var(--yellow)',
+          }}
         >
-          {loading ? "Menyimpan..." : "Simpan Tugas"}
+          {loading ? "⏳ Menyimpan..." : "💾 Simpan Tugas"}
         </button>
       </form>
     </div>
