@@ -71,10 +71,14 @@ export const taskService = {
       taskData.reminder_days_before
     );
 
+
+    const fixedDeadline = new Date(taskData.deadline + "T23:59:00").toISOString();
     const { data, error } = await supabase
+
       .from("tasks")
       .insert({
         ...taskData,
+        deadline: fixedDeadline,
         user_id: user.id,
         is_completed: false,
       })

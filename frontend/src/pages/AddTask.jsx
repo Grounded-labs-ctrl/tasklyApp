@@ -56,7 +56,7 @@ const AddTask = ({ onTaskAdded }) => {
   const fields = [
     { name: "title", placeholder: "Nama tugas", emoji: "📝", type: "text" },
     { name: "course_name", placeholder: "Mata kuliah", emoji: "📚", type: "text" },
-    { name: "deadline", placeholder: "Deadline", emoji: "⏰", type: "datetime-local" },
+    { name: "deadline", placeholder: "Deadline", emoji: "⏰", type: "date" },,
     { name: "estimated_hours", placeholder: "Estimasi jam ngerjain", emoji: "🕐", type: "number" },
     { name: "reminder_days_before", placeholder: "Ingatkan H- berapa?", emoji: "🔔", type: "number" },
   ];
