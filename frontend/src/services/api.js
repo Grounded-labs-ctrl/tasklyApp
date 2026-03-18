@@ -1,6 +1,5 @@
 import { supabase } from "./supabase";
 
-// Business logic (dipindah dari Python ke JS)
 const calculateSessions = (estimatedHours) => {
   const sessions = [];
   let remaining = estimatedHours;
@@ -42,10 +41,13 @@ export const taskService = {
 
     if (error) throw new Error(error.message);
 
-    // Auto cleanup expired tasks
+    console.log("Data dari Supabase:", data);
+
     const expired = data.filter(task =>
       isExpired(task.deadline, task.is_completed)
     );
+
+    console.log("Expired tasks:", expired);
 
     if (expired.length > 0) {
       await Promise.all(
@@ -71,10 +73,11 @@ export const taskService = {
       taskData.reminder_days_before
     );
 
-
     const fixedDeadline = new Date(taskData.deadline + "T23:59:00").toISOString();
-    const { data, error } = await supabase
 
+    console.log("Creating task with deadline:", fixedDeadline);
+
+    const { data, error } = await supabase
       .from("tasks")
       .insert({
         ...taskData,
