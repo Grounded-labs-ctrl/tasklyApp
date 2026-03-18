@@ -1,46 +1,104 @@
 import { supabase } from "./supabase";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// Business logic (dipindah dari Python ke JS)
+const calculateSessions = (estimatedHours) => {
+  const sessions = [];
+  let remaining = estimatedHours;
+  const sessionLength = 1.5;
 
-const getAuthHeader = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  return session ? { "Authorization": `Bearer ${session.access_token}` } : {};
+  while (remaining > 0) {
+    const duration = Math.min(sessionLength, remaining);
+    sessions.push(`${duration} jam`);
+    remaining -= duration;
+    remaining = Math.round(remaining * 10) / 10;
+  }
+
+  return sessions;
+};
+
+const getReminderDate = (deadline, daysBefore) => {
+  const date = new Date(deadline);
+  date.setDate(date.getDate() - daysBefore);
+  return date;
+};
+
+const isExpired = (deadline, isCompleted, daysAfter = 7) => {
+  if (!isCompleted) return false;
+  const cleanupDate = new Date(deadline);
+  cleanupDate.setDate(cleanupDate.getDate() + daysAfter);
+  return new Date() > cleanupDate;
 };
 
 export const taskService = {
   getAllTasks: async () => {
-    const authHeader = await getAuthHeader();
-    const response = await fetch(`${API_URL}/tasks/`, {
-      headers: { ...authHeader }
-    });
-    if (!response.ok) throw new Error("Failed to fetch tasks");
-    return response.json();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("deadline", { ascending: true });
+
+    if (error) throw new Error(error.message);
+
+    // Auto cleanup expired tasks
+    const expired = data.filter(task =>
+      isExpired(task.deadline, task.is_completed)
+    );
+
+    if (expired.length > 0) {
+      await Promise.all(
+        expired.map(task =>
+          supabase.from("tasks").delete().eq("id", task.id)
+        )
+      );
+      return data.filter(task =>
+        !isExpired(task.deadline, task.is_completed)
+      );
+    }
+
+    return data;
   },
 
   createTask: async (taskData) => {
-    const authHeader = await getAuthHeader();
-    const response = await fetch(`${API_URL}/tasks/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeader
-      },
-      body: JSON.stringify(taskData),
-    });
-    if (!response.ok) throw new Error("Failed to create task");
-    return response.json();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    const sessions = calculateSessions(taskData.estimated_hours);
+    const reminderDate = getReminderDate(
+      taskData.deadline,
+      taskData.reminder_days_before
+    );
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert({
+        ...taskData,
+        user_id: user.id,
+        is_completed: false,
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+
+    return {
+      task: data,
+      sessions,
+      reminder_date: reminderDate,
+    };
   },
 
   updateTask: async (taskId, isCompleted) => {
-    const authHeader = await getAuthHeader();
-    const response = await fetch(
-      `${API_URL}/tasks/${taskId}?is_completed=${isCompleted}`,
-      {
-        method: "PATCH",
-        headers: { ...authHeader }
-      }
-    );
-    if (!response.ok) throw new Error("Failed to update task");
-    return response.json();
+    const { data, error } = await supabase
+      .from("tasks")
+      .update({ is_completed: isCompleted })
+      .eq("id", taskId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
   },
 };
