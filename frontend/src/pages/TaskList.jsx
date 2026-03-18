@@ -9,7 +9,7 @@ const TaskList = ({ taskHook }) => {
     <div className="text-center py-16">
       <div className="text-6xl animate-bounce mb-4">📋</div>
       <p className="font-black text-xl" style={{ color: 'var(--dark)' }}>
-        Ngambil tugas lo...
+        Ngambil tugas kamu...
       </p>
     </div>
   );
@@ -58,7 +58,7 @@ const TaskList = ({ taskHook }) => {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-black" style={{ color: 'var(--dark)' }}>
-            Tugas Gw 📚
+            Tugas Saya 📚
           </h2>
           <p className="font-semibold" style={{ color: '#888' }}>
             {activeTasks.length} tugas aktif · {completedTasks.length} selesai
