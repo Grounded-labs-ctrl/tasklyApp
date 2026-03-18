@@ -38,7 +38,7 @@ function App() {
                 borderColor: page === "list" ? 'var(--yellow)' : 'rgba(255,255,255,0.3)'
               }}
             >
-              📚 Tugas Saya
+              📚 Task
             </button>
             <button
               onClick={() => setPage("add")}
