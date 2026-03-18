@@ -24,10 +24,10 @@ export const useTasks = () => {
 
   const addTask = async (taskData) => {
     try {
-      const newTask = await taskService.createTask(taskData);
-      setTasks((prev) => [...prev, newTask.task]);
+      await taskService.createTask(taskData);
+      await fetchTasks(); // re-fetch dari Supabase
     } catch (err) {
-      setError(err.message);
+    setError(err.message);
     }
   };
 
