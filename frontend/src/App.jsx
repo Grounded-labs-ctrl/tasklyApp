@@ -38,7 +38,7 @@ function App() {
                 borderColor: page === "list" ? 'var(--yellow)' : 'rgba(255,255,255,0.3)'
               }}
             >
-              📚 Tugas Gw
+              📚 Tugas Saya
             </button>
             <button
               onClick={() => setPage("add")}
@@ -109,7 +109,7 @@ function App() {
           }}
         >
           <span className="text-xl">📚</span>
-          Tugas Gw
+          Tugas Saya
         </button>
         <button
           onClick={() => setPage("add")}
