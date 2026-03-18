@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "./hooks/useAuth";
+import { useTasks } from "./hooks/useTasks";
 import Login from "./pages/Login";
 import TaskList from "./pages/TaskList";
 import AddTask from "./pages/AddTask";
@@ -7,6 +8,7 @@ import AddTask from "./pages/AddTask";
 function App() {
   const { user, loading, signInWithGoogle, signOut } = useAuth();
   const [page, setPage] = useState("list");
+  const taskHook = useTasks();
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -20,7 +22,6 @@ function App() {
 
   return (
     <div className="min-h-screen">
-      {/* Navbar */}
       <nav style={{ background: 'var(--dark)' }} className="px-6 py-4 flex justify-between items-center shadow-lg">
         <div className="flex items-center gap-6">
           <h1 className="text-2xl font-black text-white">
@@ -44,7 +45,7 @@ function App() {
               className="px-4 py-2 rounded-full font-bold text-sm transition-all"
               style={{
                 background: page === "add" ? 'var(--pink)' : 'transparent',
-                color: page === "add" ? 'white' : 'white',
+                color: 'white',
                 border: '2px solid',
                 borderColor: page === "add" ? 'var(--pink)' : 'rgba(255,255,255,0.3)'
               }}
@@ -68,12 +69,11 @@ function App() {
         </div>
       </nav>
 
-      {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-8">
         {page === "list" ? (
-          <TaskList />
+          <TaskList taskHook={taskHook} />
         ) : (
-          <AddTask onTaskAdded={() => setPage("list")} />
+          <AddTask taskHook={taskHook} onTaskAdded={() => setPage("list")} />
         )}
       </div>
     </div>
