@@ -4,7 +4,18 @@ import TaskCard from "../components/TaskCard";
 
 const TaskList = () => {
   const { tasks, loading, error, toggleComplete } = useTasks();
-  const { getUrgentTasks } = useNotifications(tasks);
+  const getUrgentTasks = (tasks) => {
+  if (!tasks) return [];
+  const now = new Date();
+  
+  return tasks.filter(task => {
+    if (task.is_completed) return false;
+    const deadline = new Date(task.deadline);
+    const diffMs = deadline - now;
+    const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return daysLeft <= task.reminder_days_before && daysLeft >= 0;
+  });
+};
 
   if (loading) return (
     <div className="text-center py-16">
